@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Follow Feature Email Notifications",
+  "schemaVersion": 1
+}
+</script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow Feature — Email Notification Mocks</title>
+<style>
+  :root {
+    color-scheme: light;
+    --black:   #000000;
+    --white:   #FFFFFF;
+    --cream:   #F0E4D8;
+    --rust:    #8F3602;
+    --green:   #037956;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--cream); color: var(--black); min-height: 100vh; }
+
+  .app { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar { width: 256px; flex-shrink: 0; background: var(--black); color: var(--white); display: flex; flex-direction: column; overflow-y: auto; }
+  .main { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; }
+
+  .sidebar-header { padding: 20px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-header h1 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); margin-bottom: 3px; }
+  .sidebar-header p { font-size: 11px; color: rgba(255,255,255,0.25); }
+
+  .section-label { padding: 16px 16px 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); }
+
+  .nav-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item.active { background: rgba(255,255,255,0.09); border-left-color: var(--cream); }
+  .nav-num { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-top: 1px; }
+  .num-immediate { background: var(--black); color: var(--white); border: 1px solid rgba(255,255,255,0.3); }
+  .num-daily     { background: var(--rust);  color: var(--white); }
+  .num-weekly    { background: var(--green); color: var(--white); }
+  .nav-label { font-size: 12.5px; color: rgba(255,255,255,0.85); line-height: 1.4; }
+  .nav-sub   { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+  .nav-item.active .nav-label { color: var(--white); }
+  .nav-item.active .nav-sub   { color: rgba(255,255,255,0.45); }
+
+  .email-wrapper { width: 100%; max-width: 660px; }
+  .variant-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(0,0,0,0.4); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+  .vtag-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .chrome-bar { background: #ddd; border-radius: 8px 8px 0 0; padding: 9px 14px; display: flex; align-items: center; gap: 8px; }
+  .chrome-dots { display: flex; gap: 5px; }
+  .chrome-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .chrome-dot:nth-child(1) { background: #ff5f57; }
+  .chrome-dot:nth-child(2) { background: #febc2e; }
+  .chrome-dot:nth-child(3) { background: #28c840; }
+  .chrome-subj { font-size: 11.5px; color: #555; flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 8px; }
+
+  .email-shell { background: var(--white); border: 1px solid rgba(0,0,0,0.12); border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; }
+  .email-meta-bar { background: #fafafa; border-bottom: 1px solid #eee; padding: 12px 18px; font-size: 11.5px; color: #555; }
+  .meta-row { display: flex; gap: 6px; margin-bottom: 2px; }
+  .meta-row:last-child { margin-bottom: 0; }
+  .mk { font-weight: 700; color: #333; min-width: 38px; }
+
+  .email-canvas { background: var(--cream); padding: 20px 16px; }
+  .email-doc { background: var(--white); max-width: 600px; margin: 0 auto; border: 1px solid rgba(0,0,0,0.1); border-radius: 3px; overflow: hidden; font-family: Georgia, 'Times New Roman', serif; font-size: 14px; }
+
+  .cfr-top { background: var(--black); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .cfr-name { font-family: -apple-system, sans-serif; font-size: 17px; font-weight: 800; color: var(--white); letter-spacing: 0.06em; }
+  .cfr-full { font-family: -apple-system, sans-serif; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+  .cfr-meta { font-family: -apple-system, sans-serif; font-size: 10px; color: rgba(255,255,255,0.4); text-align: right; line-height: 1.5; }
+
+  .hero-band { padding: 14px 28px; }
+  .hero-eyebrow { font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+  .hero-title { font-family: -apple-system, sans-serif; font-size: 19px; font-weight: 700; color: var(--white); line-height: 1.25; }
+
+  .sec { padding: 20px 28px; border-bottom: 1px solid #eee; }
+  .sec:last-of-type { border-bottom: none; }
+  .greeting { font-size: 14.5px; color: var(--black); margin-bottom: 10px; }
+  .intro { font-size: 13.5px; color: #555; line-height: 1.65; }
+
+  .ftag { display: inline-flex; align-items: center; gap: 4px; background: #f5ede5; border: 1px solid #e0c9b8; border-radius: 3px; padding: 2px 8px; font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; color: var(--rust); margin-bottom: 10px; }
+
+  .acard { border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+  .acard:last-child { margin-bottom: 0; }
+  .acard-img { width: 100%; height: 88px; background: linear-gradient(135deg, var(--black) 0%, #2d2d2d 100%); display: flex; align-items: center; justify-content: center; }
+  .acard-img span { font-family: -apple-system, sans-serif; font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 0.12em; text-transform: uppercase; }
+  .acard-body { padding: 13px 15px; }
+  .atype { font-family: -apple-system, sans-serif; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rust); margin-bottom: 5px; }
+  .atitle { font-size: 15px; font-weight: 700; color: var(--black); line-height: 1.3; margin-bottom: 6px; }
+  .aexcerpt { font-size: 12.5px; color: #666; line-height: 1.55; margin-bottom: 8px; }
+  .ameta { font-family: -apple-system, sans-serif; font-size: 11px; color: #999; margin-bottom: 10px; }
+  .acta { display: inline-block; background: var(--black); color: var(--white); font-family: -apple-system, sans-serif; font-size: 11.5px; font-weight: 600; padding: 7px 16px; border-radius: 3px; text-decoration: none; }
+
+  .dsec-head { background: var(--cream); margin: -20px -28px 14px; padding: 7px 28px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .dsec-head h3 { font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(0,0,0,0.4); }
+
+  .dlist { border-top: 1px solid #f0f0f0; }
+  .drow { padding: 13px 0; border-bottom: 1px solid #f0f0f0; }
+  .drow:last-child { border-bottom: none; }
+  .dtype { font-family: -apple-system, sans-serif; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rust); margin-bottom: 4px; }
+  .dtitle { font-size: 13.5px; font-weight: 700; color: var(--black); line-height: 1.3; margin-bottom: 3px; }
+  .dmeta { font-family: -apple-system, sans-serif; font-size: 11px; color: #999; margin-bottom: 4px; }
+  .dread { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 600; color: var(--rust); text-decoration: none; }
+
+  .sum-bar { background: #f0faf5; border: 1px solid #b2dece; border-radius: 4px; padding: 9px 13px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-family: -apple-system, sans-serif; font-size: 12px; color: var(--green); }
+
+  .cta-sec { background: var(--cream); padding: 16px 28px; text-align: center; border-top: 1px solid rgba(0,0,0,0.08); }
+  .cta-btn { display: inline-block; background: var(--black); color: var(--white); font-family: -apple-system, sans-serif; font-size: 12.5px; font-weight: 600; padding: 10px 22px; border-radius: 3px; text-decoration: none; }
+
+  .efooter { background: var(--cream); border-top: 1px solid rgba(0,0,0,0.08); padding: 14px 28px; font-family: -apple-system, sans-serif; font-size: 10.5px; color: rgba(0,0,0,0.4); line-height: 1.7; }
+  .efooter a { color: rgba(0,0,0,0.5); }
+  .manage-btn { display: inline-block; background: var(--white); border: 1px solid rgba(0,0,0,0.15); border-radius: 3px; padding: 5px 12px; font-size: 10.5px; color: #444; margin-bottom: 8px; text-decoration: none; }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>Email Notifications</h1>
+      <p>Follow Feature · 6 variants</p>
+    </div>
+    <div class="section-label">Single Match</div>
+    <div class="nav-item active" data-id="v1" onclick="show(this)">
+      <div class="nav-num num-immediate">1</div>
+      <div><div class="nav-label">Immediate Send</div><div class="nav-sub">1 match · sends right away</div></div>
+    </div>
+    <div class="nav-item" data-id="v2" onclick="show(this)">
+      <div class="nav-num num-daily">2</div>
+      <div><div class="nav-label">Daily Digest</div><div class="nav-sub">1 match · sent at day's end</div></div>
+    </div>
+    <div class="nav-item" data-id="v3" onclick="show(this)">
+      <div class="nav-num num-weekly">3</div>
+      <div><div class="nav-label">Weekly Digest</div><div class="nav-sub">1 match · sent on Mondays</div></div>
+    </div>
+    <div class="section-label">Multiple Matches</div>
+    <div class="nav-item" data-id="v4" onclick="show(this)">
+      <div class="nav-num num-immediate">4</div>
+      <div><div class="nav-label">Immediate Send</div><div class="nav-sub">3 matches · sends right away</div></div>
+    </div>
+    <div class="nav-item" data-id="v5" onclick="show(this)">
+      <div class="nav-num num-daily">5</div>
+      <div><div class="nav-label">Daily Digest</div><div class="nav-sub">5 matches · sent at day's end</div></div>
+    </div>
+    <div class="nav-item" data-id="v6" onclick="show(this)">
+      <div class="nav-num num-weekly">6</div>
+      <div><div class="nav-label">Weekly Digest</div><div class="nav-sub">12 matches · sent on Mondays</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- V1: Single · Immediate — cfr-top present, hero band removed -->
+    <div class="email-wrapper" id="v1">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#000"></span>Single Match · Immediate Send</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">New from CFR: "China's AI Strategy" — From an Expert You Follow</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> New from CFR: "China's AI Strategy" — From an Expert You Follow</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">New Content Alert<br>May 18, 2026 · 10:42 AM</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Hi Maria,</div>
+              <div class="intro">An expert you follow just published new content on CFR.org.</div>
+            </div>
+            <div class="sec">
+              <div class="ftag">👤 Zongyuan Zoe Liu</div>
+              <div class="acard">
+                <div class="acard-img"><span>CFR.org</span></div>
+                <div class="acard-body">
+                  <div class="atype">Expert Take</div>
+                  <div class="atitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="aexcerpt">Beijing's ambitions in artificial intelligence extend far beyond commercial competition — this piece examines how Chinese industrial policy and military doctrine are fusing into a unified national AI strategy.</div>
+                  <div class="ameta">Zongyuan Zoe Liu · May 18, 2026</div>
+                  <a class="acta" href="#">Read Now →</a>
+                </div>
+              </div>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this because you follow <strong>Zongyuan Zoe Liu</strong> on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2: Single · Daily (RUST) -->
+    <div class="email-wrapper hidden" id="v2">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#8F3602"></span>Single Match · Daily Digest</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">Your CFR Daily Digest — 1 new piece from your follows</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> Your CFR Daily Digest — 1 new piece from your follows</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">Daily Digest<br>Monday, May 18, 2026</div>
+            </div>
+            <div class="hero-band" style="background:#8F3602;">
+              <div class="hero-eyebrow">Your daily digest</div>
+              <div class="hero-title">1 new piece from your follows today</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Good morning, Maria.</div>
+              <div class="intro">Here's what came in today from the experts and topics you follow on CFR.org.</div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Experts You Follow · 1 new</h3></div>
+              <div class="ftag">👤 Zongyuan Zoe Liu</div>
+              <div class="acard">
+                <div class="acard-body">
+                  <div class="atype">Expert Take</div>
+                  <div class="atitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="aexcerpt">Beijing's ambitions in artificial intelligence extend far beyond commercial competition.</div>
+                  <div class="ameta">Zongyuan Zoe Liu · May 18, 2026</div>
+                  <a class="acta" href="#">Read Now →</a>
+                </div>
+              </div>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this daily digest because you follow experts and topics on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3: Single · Weekly (GREEN) -->
+    <div class="email-wrapper hidden" id="v3">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#037956"></span>Single Match · Weekly Digest</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">Your CFR Weekly Digest — 1 new piece from your follows</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> Your CFR Weekly Digest — 1 new piece from your follows</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">Weekly Digest<br>Week of May 12–18, 2026</div>
+            </div>
+            <div class="hero-band" style="background:#037956;">
+              <div class="hero-eyebrow">Your weekly digest</div>
+              <div class="hero-title">1 new piece from your follows this week</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Hi Maria,</div>
+              <div class="intro">Here's your weekly roundup of new content from the experts and topics you follow on CFR.org.</div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Experts You Follow · 1 new</h3></div>
+              <div class="ftag">👤 Zongyuan Zoe Liu</div>
+              <div class="acard">
+                <div class="acard-body">
+                  <div class="atype">Article</div>
+                  <div class="atitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="aexcerpt">Beijing's ambitions in artificial intelligence extend far beyond commercial competition.</div>
+                  <div class="ameta">Zongyuan Zoe Liu · May 18, 2026</div>
+                  <a class="acta" href="#">Read Now →</a>
+                </div>
+              </div>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this weekly digest because you follow experts and topics on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4: Multiple · Immediate (BLACK) -->
+    <div class="email-wrapper hidden" id="v4">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#000"></span>Multiple Matches · Immediate Send</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">3 new pieces on CFR — From experts &amp; topics you follow</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> 3 new pieces on CFR — From experts &amp; topics you follow</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">New Content Alert<br>May 18, 2026 · 2:15 PM</div>
+            </div>
+            <div class="hero-band" style="background:#000000;">
+              <div class="hero-eyebrow">New from people &amp; topics you follow</div>
+              <div class="hero-title">3 new publications just posted</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Hi Maria,</div>
+              <div class="intro">There's been a wave of new content from the experts and topics you follow. Here's what's new.</div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Experts You Follow · 2 new</h3></div>
+              <div class="ftag">👤 Zongyuan Zoe Liu</div>
+              <div class="acard" style="margin-bottom:14px">
+                <div class="acard-body">
+                  <div class="atype">Expert Take</div>
+                  <div class="atitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="ameta">Zongyuan Zoe Liu · May 18, 2026</div>
+                  <a class="acta" href="#">Read Now →</a>
+                </div>
+              </div>
+              <div class="ftag">👤 Shannon K. O'Neil</div>
+              <div class="acard">
+                <div class="acard-body">
+                  <div class="atype">Podcast</div>
+                  <div class="atitle">Nearshoring's Promise and Peril: Mexico at a Crossroads</div>
+                  <div class="ameta">Shannon K. O'Neil · May 17, 2026</div>
+                  <a class="acta" href="#">Listen Now →</a>
+                </div>
+              </div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Topics You Follow · 1 new</h3></div>
+              <div class="ftag">🏷 Latin America</div>
+              <div class="acard">
+                <div class="acard-body">
+                  <div class="atype">Article</div>
+                  <div class="atitle">Venezuela's Political Transition: What to Watch in 2026</div>
+                  <div class="ameta">CFR Staff · May 18, 2026</div>
+                  <a class="acta" href="#">Read Now →</a>
+                </div>
+              </div>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this because you follow experts and topics on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V5: Multiple · Daily (RUST) -->
+    <div class="email-wrapper hidden" id="v5">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#8F3602"></span>Multiple Matches · Daily Digest</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">Your CFR Daily Digest — 5 new pieces from your follows</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> Your CFR Daily Digest — 5 new pieces from your follows</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">Daily Digest<br>Monday, May 18, 2026</div>
+            </div>
+            <div class="hero-band" style="background:#8F3602;">
+              <div class="hero-eyebrow">Your daily digest</div>
+              <div class="hero-title">5 new pieces from your follows today</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Good morning, Maria.</div>
+              <div class="intro">Here's everything new today from the experts and topics you follow on CFR.org.</div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Experts You Follow · 3 new</h3></div>
+              <div class="dlist">
+                <div class="drow">
+                  <div class="ftag">👤 Zongyuan Zoe Liu</div>
+                  <div class="dtype">Expert Take</div>
+                  <div class="dtitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">👤 Shannon K. O'Neil</div>
+                  <div class="dtype">Podcast</div>
+                  <div class="dtitle">Nearshoring's Promise and Peril: Mexico at a Crossroads</div>
+                  <div class="dmeta">May 17, 2026</div>
+                  <a class="dread" href="#">Listen →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">👤 Richard Haass</div>
+                  <div class="dtype">Video</div>
+                  <div class="dtitle">The Case for Principled Realism in a Fractured World</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Watch →</a>
+                </div>
+              </div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>From Topics You Follow · 2 new</h3></div>
+              <div class="dlist">
+                <div class="drow">
+                  <div class="ftag">🏷 Latin America</div>
+                  <div class="dtype">Article</div>
+                  <div class="dtitle">Venezuela's Political Transition: What to Watch in 2026</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">🏷 Artificial Intelligence</div>
+                  <div class="dtype">Report</div>
+                  <div class="dtitle">Governing AI: International Frameworks and the Limits of Cooperation</div>
+                  <div class="dmeta">May 17, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+              </div>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this daily digest because you follow experts and topics on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- V6: Multiple · Weekly (GREEN) -->
+    <div class="email-wrapper hidden" id="v6">
+      <div class="variant-tag"><span class="vtag-dot" style="background:#037956"></span>Multiple Matches · Weekly Digest</div>
+      <div class="chrome-bar">
+        <div class="chrome-dots"><div class="chrome-dot"></div><div class="chrome-dot"></div><div class="chrome-dot"></div></div>
+        <div class="chrome-subj">Your CFR Week in Review — 12 new pieces from your follows</div>
+      </div>
+      <div class="email-shell">
+        <div class="email-meta-bar">
+          <div class="meta-row"><span class="mk">From:</span> CFR Updates &lt;updates@cfr.org&gt;</div>
+          <div class="meta-row"><span class="mk">To:</span> malzuru@cfr.org</div>
+          <div class="meta-row"><span class="mk">Subj:</span> Your CFR Week in Review — 12 new pieces from your follows</div>
+        </div>
+        <div class="email-canvas">
+          <div class="email-doc">
+            <div class="cfr-top">
+              <div><div class="cfr-name">CFR</div><div class="cfr-full">Council on Foreign Relations</div></div>
+              <div class="cfr-meta">Weekly Digest<br>Week of May 12–18, 2026</div>
+            </div>
+            <div class="hero-band" style="background:#037956;">
+              <div class="hero-eyebrow">Your week in review</div>
+              <div class="hero-title">12 new pieces from your follows this week</div>
+            </div>
+            <div class="sec">
+              <div class="greeting">Hi Maria,</div>
+              <div class="intro">It was an active week. Here's your full roundup from the experts and topics you follow on CFR.org.</div>
+              <div style="margin-top:12px" class="sum-bar">📊 &nbsp;<strong>7</strong> from experts you follow &nbsp;·&nbsp; <strong>5</strong> from topics you follow</div>
+            </div>
+            <div class="sec">
+              <div class="dsec-head"><h3>Top Picks This Week</h3></div>
+              <div class="dlist">
+                <div class="drow">
+                  <div class="ftag">👤 Zongyuan Zoe Liu</div>
+                  <div class="dtype">Expert Take</div>
+                  <div class="dtitle">China's AI Strategy: Industrial Policy, Military Applications, and the Race for Supremacy</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">👤 Shannon K. O'Neil</div>
+                  <div class="dtype">Podcast</div>
+                  <div class="dtitle">Nearshoring's Promise and Peril: Mexico at a Crossroads</div>
+                  <div class="dmeta">May 17, 2026</div>
+                  <a class="dread" href="#">Listen →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">🏷 Latin America</div>
+                  <div class="dtype">Article</div>
+                  <div class="dtitle">Venezuela's Political Transition: What to Watch in 2026</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">👤 Richard Haass</div>
+                  <div class="dtype">Video</div>
+                  <div class="dtitle">The Case for Principled Realism in a Fractured World</div>
+                  <div class="dmeta">May 18, 2026</div>
+                  <a class="dread" href="#">Watch →</a>
+                </div>
+                <div class="drow">
+                  <div class="ftag">🏷 Artificial Intelligence</div>
+                  <div class="dtype">Report</div>
+                  <div class="dtitle">Governing AI: International Frameworks and the Limits of Cooperation</div>
+                  <div class="dmeta">May 17, 2026</div>
+                  <a class="dread" href="#">Read →</a>
+                </div>
+              </div>
+            </div>
+            <div class="cta-sec">
+              <a class="cta-btn" href="#">View All 12 Matches on CFR.org →</a>
+            </div>
+            <div class="efooter">
+              <a class="manage-btn" href="#">Manage follows &amp; notification settings</a><br>
+              You're receiving this weekly digest because you follow experts and topics on CFR.org. &nbsp;<a href="#">Unsubscribe</a> · <a href="#">Privacy Policy</a><br>58 East 68th Street, New York, NY 10065
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function show(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.email-wrapper').forEach(w => w.classList.add('hidden'));
+    document.getElementById(el.dataset.id).classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
